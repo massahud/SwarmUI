@@ -677,7 +677,22 @@ public static class T2IAPI
             return new JObject() { ["error"] = $"Invalid sort mode '{sortBy}'." };
         }
         string root = Utilities.CombinePathWithAbsolute(Environment.CurrentDirectory, session.User.OutputDirectory);
-        return GetListAPIInternal(session, path, root, HistoryExtensions, f => true, depth, sortMode, sortReverse);
+
+        return GetListAPIInternal(session, path, root, HistoryExtensions, f => !IsOSXControlFile(f), depth, sortMode, sortReverse);
+    }
+
+    /// <summary>
+    /// Checks if a file is an OSX control file (starts with ._) on OSX systems.
+    /// </summary>
+    /// <param name="path">The file path to check.</param>
+    /// <returns>true if the file is an OSX control file; otherwise, false.</returns>
+    private static bool IsOSXControlFile(string path)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && Path.GetFileName(path).StartsWith("._"))
+        {
+            return true;
+        }
+        return false;
     }
 
     [API.APIDescription("Open an image folder in the file explorer. Used for local users directly.", "\"success\": true")]
